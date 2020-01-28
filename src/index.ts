@@ -1,16 +1,15 @@
-import { decode as jwtDecode, verify as jwtVerify } from 'jsonwebtoken';
-import * as jwkToPem from 'jwk-to-pem';
-import fetch, { HeadersInit, Response } from 'node-fetch';
-
+import { decode as jwtDecode, verify as jwtVerify } from "jsonwebtoken";
+import * as jwkToPem from "jwk-to-pem";
+import fetch, { HeadersInit, Response } from "node-fetch";
 
 interface IJamJwks {
   keys: Array<{
-    kty: 'EC',
-    crv: 'P-521',
-    x: string,
-    y: string,
-    kid: string,
-  }>
+    kty: "EC";
+    crv: "P-521";
+    x: string;
+    y: string;
+    kid: string;
+  }>;
 }
 
 async function checkRes(res: Response, expectedStatus: number) {
@@ -39,39 +38,48 @@ export default class JustAuthenticateMe {
   async getJwks(): Promise<IJamJwks> {
     const res = await fetch(`${this.jamApiUrl}.well-known/jwks.json`);
     await checkRes(res, 200);
-    return (await res.json());
+    return await res.json();
   }
 
-  async verify(idToken: string, forceFetchKeys: boolean = false): Promise<string> {
+  async verify(
+    idToken: string,
+    forceFetchKeys: boolean = false
+  ): Promise<string> {
     if (this.jwks === null || forceFetchKeys) {
       this.jwks = await this.getJwks();
     }
 
-    const { header: idTokenHeader, body } = jwtDecode(idToken, { complete: true }) as any
-    if (body.token_use !== 'id') {
-      const err = new Error(`invalid token_use: Expected "id" but got "${body.token_use}"`);
-      (err as any).code = 'unauthorized'
-      throw err
-    }
+    const { header: idTokenHeader } = jwtDecode(idToken, {
+      complete: true
+    }) as any;
 
-    const key = this.jwks.keys.find(k => k.kid === idTokenHeader.kid)
+    const key = this.jwks.keys.find(k => k.kid === idTokenHeader.kid);
     if (key === undefined) {
-      const err = new Error(`kid not found: token was signed with kid "${idTokenHeader.kid}" but no key with that id was found in jwks`);
-      (err as any).code = 'unauthorized'
-      throw err
+      const err = new Error(
+        `kid not found: token was signed with kid "${idTokenHeader.kid}" but no key with that id was found in jwks`
+      );
+      (err as any).code = "unauthorized";
+      throw err;
     }
 
-    const pem = jwkToPem(key)
+    const pem = jwkToPem(key);
     try {
-      const { email } = jwtVerify(idToken, pem, {
-        algorithms: ['ES512'],
+      const { email, token_use } = jwtVerify(idToken, pem, {
+        algorithms: ["ES512"],
         audience: this.appId,
         ignoreExpiration: false,
-        issuer: this.jamApiUrl,
-      }) as any
+        issuer: this.jamApiUrl
+      }) as any;
+
+      if (token_use !== "id") {
+        throw new Error(
+          `invalid token_use: Expected "id" but got "${token_use}"`
+        );
+      }
+
       return email;
     } catch (err) {
-      (err as any).code = 'unauthorized';
+      (err as any).code = "unauthorized";
       throw err;
     }
   }
