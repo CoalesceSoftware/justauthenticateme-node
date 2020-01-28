@@ -1,0 +1,44 @@
+{
+  "name": "justauthenticateme-node",
+  "version": "0.1.0",
+  "description": "Nodejs SDK for https://www.justauthenticate.me",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "author": "Grant Orndorff",
+  "license": "MIT",
+  "keywords": [
+    "justauthenticateme",
+    "authentication",
+    "auth"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint -p tsconfig.json",
+    "postversion": "git push && git push --tags"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged && npm run lint"
+    }
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^8.3.7",
+    "@types/jwk-to-pem": "^2.0.0",
+    "@types/node-fetch": "^2.5.4",
+    "husky": "^4.0.6",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
+    "tslint": "^5.20.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^8.5.1",
+    "jwk-to-pem": "^2.0.3",
+    "node-fetch": "^2.6.0"
+  }
+}
