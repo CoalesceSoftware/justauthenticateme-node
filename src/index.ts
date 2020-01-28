@@ -68,7 +68,7 @@ export default class JustAuthenticateMe {
         algorithms: ["ES512"],
         audience: this.appId,
         ignoreExpiration: false,
-        issuer: this.jamApiUrl
+        issuer: `https://api.justauthenticate.me/${this.appId}`
       }) as any;
 
       if (token_use !== "id") {

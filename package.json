@@ -1,6 +1,6 @@
 {
   "name": "justauthenticateme-node",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Nodejs SDK for https://www.justauthenticate.me",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -18,7 +18,7 @@
   "scripts": {
     "build": "rm -rf dist && tsc",
     "lint": "tslint -p tsconfig.json",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "postversion": "git push && git push --tags"
   },
   "husky": {
