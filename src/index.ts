@@ -49,9 +49,15 @@ export default class JustAuthenticateMe {
       this.jwks = await this.getJwks();
     }
 
-    const { header: idTokenHeader } = jwtDecode(idToken, {
+    const decodedToken = jwtDecode(idToken, {
       complete: true
     }) as any;
+    if (!decodedToken) {
+      const err = new Error(`Invalid JWT`);
+      (err as any).code = "unauthorized";
+      throw err;
+    }
+    const { header: idTokenHeader } = decodedToken;
 
     const key = this.jwks.keys.find(k => k.kid === idTokenHeader.kid);
     if (key === undefined) {
