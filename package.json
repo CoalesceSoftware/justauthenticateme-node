@@ -1,6 +1,6 @@
 {
   "name": "justauthenticateme-node",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Nodejs SDK for https://www.justauthenticate.me",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
