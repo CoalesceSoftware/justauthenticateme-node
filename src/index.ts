@@ -29,14 +29,14 @@ export default class JustAuthenticateMe {
 
   constructor(appId: string) {
     this.appId = appId;
-    this.jamApiUrl = `https://api.justauthenticate.me/${appId}/`;
+    this.jamApiUrl = `https://api.justauthenticate.me/${appId}`;
     this.jsonHeaders = {
       "Content-Type": "application/json"
     };
   }
 
   async getJwks(): Promise<IJamJwks> {
-    const res = await fetch(`${this.jamApiUrl}.well-known/jwks.json`);
+    const res = await fetch(`${this.jamApiUrl}/.well-known/jwks.json`);
     await checkRes(res, 200);
     return await res.json();
   }
@@ -74,7 +74,7 @@ export default class JustAuthenticateMe {
         algorithms: ["ES512"],
         audience: this.appId,
         ignoreExpiration: false,
-        issuer: `https://api.justauthenticate.me/${this.appId}`
+        issuer: this.jamApiUrl
       }) as any;
 
       if (token_use !== "id") {
@@ -91,7 +91,7 @@ export default class JustAuthenticateMe {
   }
 
   async initAuth(email: string) {
-    const res = await fetch(`${this.jamApiUrl}authenticate`, {
+    const res = await fetch(`${this.jamApiUrl}/authenticate`, {
       method: "POST",
       headers: this.jsonHeaders,
       body: JSON.stringify({ email })
@@ -100,7 +100,7 @@ export default class JustAuthenticateMe {
   }
 
   async refresh(refreshToken: string): Promise<string> {
-    const res = await fetch(`${this.jamApiUrl}refresh`, {
+    const res = await fetch(`${this.jamApiUrl}/refresh`, {
       method: "POST",
       headers: this.jsonHeaders,
       body: JSON.stringify({ refreshToken })
@@ -110,7 +110,7 @@ export default class JustAuthenticateMe {
   }
 
   async deleteRefreshToken(userIdToken: string, refreshToken: string) {
-    const res = await fetch(`${this.jamApiUrl}refresh/${refreshToken}`, {
+    const res = await fetch(`${this.jamApiUrl}/refresh/${refreshToken}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userIdToken}`
@@ -120,7 +120,7 @@ export default class JustAuthenticateMe {
   }
 
   async deleteAllRefreshTokens(userIdToken: string) {
-    const res = await fetch(`${this.jamApiUrl}refresh`, {
+    const res = await fetch(`${this.jamApiUrl}/refresh`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userIdToken}`
