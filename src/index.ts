@@ -110,17 +110,20 @@ export default class JustAuthenticateMe {
   }
 
   async deleteRefreshToken(userIdToken: string, refreshToken: string) {
-    const res = await fetch(`${this.jamApiUrl}/refresh/${refreshToken}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${userIdToken}`
+    const res = await fetch(
+      `${this.jamApiUrl}/user/refresh/${encodeURIComponent(refreshToken)}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${userIdToken}`
+        }
       }
-    });
+    );
     await checkRes(res, 204);
   }
 
   async deleteAllRefreshTokens(userIdToken: string) {
-    const res = await fetch(`${this.jamApiUrl}/refresh`, {
+    const res = await fetch(`${this.jamApiUrl}/user/refresh`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userIdToken}`
