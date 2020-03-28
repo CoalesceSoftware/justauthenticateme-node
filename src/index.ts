@@ -12,7 +12,7 @@ interface IJamJwks {
   }>;
 }
 
-const officialJamBaseUrl = "https://api.justauthenticate.me";
+const officialJamBaseUrl = "https://api.justauthenticate.me/";
 
 async function checkRes(res: Response, expectedStatus: number) {
   if (res.status !== expectedStatus) {
@@ -43,7 +43,7 @@ export default class JustAuthenticateMe {
       }
     }
     this.appId = appId;
-    this.baseUrlWithAppId = `${this.baseUrl}/${appId}`;
+    this.baseUrlWithAppId = `${this.baseUrl}${appId}`;
     this.jsonHeaders = {
       "Content-Type": "application/json"
     };
