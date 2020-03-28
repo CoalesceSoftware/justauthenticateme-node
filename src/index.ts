@@ -12,6 +12,8 @@ interface IJamJwks {
   }>;
 }
 
+const officialJamBaseUrl = "https://api.justauthenticate.me";
+
 async function checkRes(res: Response, expectedStatus: number) {
   if (res.status !== expectedStatus) {
     throw new Error(
@@ -23,20 +25,32 @@ async function checkRes(res: Response, expectedStatus: number) {
 
 export default class JustAuthenticateMe {
   private appId: string;
-  private jamApiUrl: string;
+  private baseUrl: string;
+  private baseUrlWithAppId: string;
   private jsonHeaders: HeadersInit;
   private jwks: IJamJwks | null = null;
 
-  constructor(appId: string) {
+  constructor(
+    appId: string,
+    options?: {
+      jamBaseUrl?: string;
+    }
+  ) {
+    this.baseUrl = officialJamBaseUrl;
+    if (options) {
+      if (options.jamBaseUrl) {
+        this.baseUrl = options.jamBaseUrl;
+      }
+    }
     this.appId = appId;
-    this.jamApiUrl = `https://api.justauthenticate.me/${appId}`;
+    this.baseUrlWithAppId = `${this.baseUrl}/${appId}`;
     this.jsonHeaders = {
       "Content-Type": "application/json"
     };
   }
 
   async getJwks(): Promise<IJamJwks> {
-    const res = await fetch(`${this.jamApiUrl}/.well-known/jwks.json`);
+    const res = await fetch(`${this.baseUrlWithAppId}/.well-known/jwks.json`);
     await checkRes(res, 200);
     return await res.json();
   }
@@ -74,7 +88,7 @@ export default class JustAuthenticateMe {
         algorithms: ["ES512"],
         audience: this.appId,
         ignoreExpiration: false,
-        issuer: this.jamApiUrl
+        issuer: this.baseUrlWithAppId
       }) as any;
 
       if (token_use !== "id") {
@@ -91,7 +105,7 @@ export default class JustAuthenticateMe {
   }
 
   async initAuth(email: string) {
-    const res = await fetch(`${this.jamApiUrl}/authenticate`, {
+    const res = await fetch(`${this.baseUrlWithAppId}/authenticate`, {
       method: "POST",
       headers: this.jsonHeaders,
       body: JSON.stringify({ email })
@@ -100,7 +114,7 @@ export default class JustAuthenticateMe {
   }
 
   async refresh(refreshToken: string): Promise<string> {
-    const res = await fetch(`${this.jamApiUrl}/refresh`, {
+    const res = await fetch(`${this.baseUrlWithAppId}/refresh`, {
       method: "POST",
       headers: this.jsonHeaders,
       body: JSON.stringify({ refreshToken })
@@ -111,7 +125,9 @@ export default class JustAuthenticateMe {
 
   async deleteRefreshToken(userIdToken: string, refreshToken: string) {
     const res = await fetch(
-      `${this.jamApiUrl}/user/refresh/${encodeURIComponent(refreshToken)}`,
+      `${this.baseUrlWithAppId}/user/refresh/${encodeURIComponent(
+        refreshToken
+      )}`,
       {
         method: "DELETE",
         headers: {
@@ -123,7 +139,7 @@ export default class JustAuthenticateMe {
   }
 
   async deleteAllRefreshTokens(userIdToken: string) {
-    const res = await fetch(`${this.jamApiUrl}/user/refresh`, {
+    const res = await fetch(`${this.baseUrlWithAppId}/user/refresh`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${userIdToken}`
